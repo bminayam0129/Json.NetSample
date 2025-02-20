@@ -11,16 +11,22 @@ namespace Json.NetSample
 {
     class Program
     {
-        private static string _path = @"C:\Json Sample\Contacts.json";
+        private static string _path = @"C:\JsonSample\Contacts.json";
         static void Main(string[] args)
         {
-            var contacts = GetContacts();
+            //var contacts = GetContacts();
+            //SerializeJsonFile(contacts);
 
+            var contacts = GetContactsJsonFromFile();
+            //DeserializeJsonFile(contacts);
+
+            ReadingJsonWithJSONTextReader(contacts);
         }
-        public static void SerializeJsonFile (List<Contact> contacts)
+
+        public static void SerializeJsonFile(List<Contact> contacts)
         {
             string contactsJson = JsonConvert.SerializeObject(contacts.ToArray(), Formatting.Indented);
-            File.WriteAllText(
+            File.WriteAllText(_path, contactsJson);
         }
         public static List<Contact> GetContacts()
         {
@@ -85,9 +91,45 @@ namespace Json.NetSample
 
             };
 
-                return null;
+            return null;
 
+        }
+
+        public static string GetContactsJsonFromFile()
+        {
+            string contactsJsonFromFile;
+            using (var reader = new StreamReader(_path))
+            {
+                contactsJsonFromFile = reader.ReadToEnd();
+            }
+            return contactsJsonFromFile;
+        }
+        public static void DeserializeJsonFile(string contactsJsonFromFIle)
+        {
+            Console.WriteLine(contactsJsonFromFIle);
+
+            var contacts = JsonConvert.DeserializeObject<Contact>(contactsJsonFromFIle);
+
+            Console.WriteLine(string.Format("Briana Minaya's Address is: {0} {1}",
+                contacts[0].Address.Street, contacts[0].Address.Number));
+            Console.WriteLine(string.Format("Briana Minaya's Date of birth is on is: {0} {1}",
+               contacts[0].DateOfBirth.ToShortDateString()));
+        }
+        public static void ReadingJsonWithJSONTextReader(string contactsJsonFromFile)
+        {
+            JsontTextReader reader = new JsonTextReader(new StringReader(contactsJsonFromFile));
+
+            while (reader.Read())
+            {
+                if (reader.Value != null)
+                {
+                    Console.WriteLine("Token: {0}, Vakue: {1}", reader.TokenType, reader.Value);
+                }
+                else
+                {
+                    Console.WriteLine("Token: {0}", reader.TokenType);
+                }
+            }
         }
     }
 }
-
